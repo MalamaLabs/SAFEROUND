@@ -64,9 +64,9 @@ export async function POST(req: NextRequest) {
 
     // Notify founders (uses existing mail util in the monorepo; swap to your sender).
     // Kept fire-and-forget so the response is fast.
-    notifyFounders(rec, accessLink).catch(() => {});
+    notifyFounders(rec, accessLink).catch(() => { });
     // Send the investor their access link.
-    sendAccessLink(rec, accessLink).catch(() => {});
+    sendAccessLink(rec, accessLink).catch(() => { });
 
     return NextResponse.json({
       ok: true,
@@ -118,16 +118,32 @@ async function sendAccessLink(rec: any, link: string) {
   await postEmail(payload);
 }
 
-// Thin wrapper. Point this at your live sender. Falls through quietly in dev.
+// Sends via Resend. Falls through to console only if no key is set.
 async function postEmail(payload: { to: string; subject: string; text: string }) {
-  const url = process.env.MAIL_WEBHOOK_URL;
-  if (!url) {
+  const key = process.env.RESEND_API_KEY;
+  const from = process.env.MAIL_FROM || "Mālama Labs <investors@malamalabs.com>";
+
+  if (!key) {
     console.log("[mail:dev]", payload.subject, "->", payload.to);
     return;
   }
-  await fetch(url, {
+
+  const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    headers: {
+      Authorization: `Bearer ${key}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from,
+      to: payload.to,
+      subject: payload.subject,
+      text: payload.text,
+    }),
   });
+
+  if (!res.ok) {
+    const err = await res.text();
+    console.error("[mail:resend] send failed", res.status, err);
+  }
 }
