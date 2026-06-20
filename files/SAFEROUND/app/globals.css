@@ -1,0 +1,31 @@
+/* Mālama Labs design tokens — canonical */
+:root {
+  --canvas: #0a0e0a;
+  --canvas-2: #11160f;
+  --panel: #161c13;
+  --panel-line: #232b1d;
+  --lime: #c4f061;
+  --lime-dim: #9bbf4d;
+  --ink: #eef2e8;
+  --ink-dim: #9aa495;
+  --ink-faint: #5f6b58;
+  --warn: #f0a861;
+  --display: 'Newsreader', Georgia, serif;
+  --body: 'Inter Tight', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--body);
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--lime); color: var(--canvas); }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; animation: none !important; }
+}
