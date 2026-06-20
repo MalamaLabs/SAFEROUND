@@ -12,36 +12,36 @@ const SECTIONS = [
   {
     cat: "Financials",
     items: [
-      { t: "Financial Model (12 tabs)", s: "Full workbook: assumptions, scenarios, P&L, valuation", f: "/investors/docs/model.xlsx" },
-      { t: "Pro Forma v1.2", s: "Detailed five-year projections", f: "/investors/docs/pro-forma.xlsx" },
-      { t: "Use of Funds", s: "Seed allocation and deployment bridge", f: "/investors/docs/use-of-funds.pdf" },
-      { t: "DePIN Comps", s: "Comparable network analysis", f: "/investors/docs/comps.pdf" },
+      { t: "Financial Model (12 tabs)", s: "Full workbook: assumptions, scenarios, P&L, valuation", f: "/api/investors/doc/model" },
+      { t: "Pro Forma v1.2", s: "Detailed five-year projections", f: "/api/investors/doc/pro-forma" },
+      { t: "Use of Funds", s: "Seed allocation and deployment bridge", f: "/api/investors/doc/use-of-funds" },
+      { t: "DePIN Comps", s: "Comparable network analysis", f: "/api/investors/doc/comps" },
     ],
   },
   {
     cat: "Corporate & Legal",
     items: [
-      { t: "Cap Table", s: "Current ownership and option pool", f: "/investors/docs/cap-table.xlsx" },
-      { t: "Certificate of Incorporation", s: "Delaware C-Corp", f: "/investors/docs/coi.pdf" },
-      { t: "SAFE Template", s: "Round instrument", f: "/investors/docs/safe.pdf" },
-      { t: "Board Consents", s: "Material resolutions", f: "/investors/docs/board.pdf" },
+      { t: "Cap Table", s: "Current ownership and option pool", f: "/api/investors/doc/cap-table" },
+      { t: "Certificate of Incorporation", s: "Delaware C-Corp", f: "/api/investors/doc/coi" },
+      { t: "SAFE Template", s: "Round instrument", f: "/api/investors/doc/safe" },
+      { t: "Board Consents", s: "Material resolutions", f: "/api/investors/doc/board" },
     ],
   },
   {
     cat: "Product & Technical",
     items: [
-      { t: "Whitepaper v1", s: "Architecture and tokenomics", f: "/investors/docs/whitepaper.pdf" },
-      { t: "Markets Deep-Dive", s: "Nine-vertical TAM analysis", f: "/investors/docs/markets.pdf" },
-      { t: "Pilot Data", s: "Texas Node #1, on-chain record", f: "/investors/docs/pilot.pdf" },
-      { t: "Hardware Spec", s: "Genesis 200 node, ATECC608B", f: "/investors/docs/hardware.pdf" },
+      { t: "Whitepaper v1", s: "Architecture and tokenomics", f: "/api/investors/doc/whitepaper" },
+      { t: "Markets Deep-Dive", s: "Nine-vertical TAM analysis", f: "/api/investors/doc/markets" },
+      { t: "Pilot Data", s: "Texas Node #1, on-chain record", f: "/api/investors/doc/pilot" },
+      { t: "Hardware Spec", s: "Genesis 200 node, ATECC608B", f: "/api/investors/doc/hardware" },
     ],
   },
   {
     cat: "Traction & Pipeline",
     items: [
-      { t: "Pipeline Summary", s: "In-discussion partners (stage-honest)", f: "/investors/docs/pipeline.pdf" },
-      { t: "Registry Onboarding", s: "Puro.earth, Isometric status", f: "/investors/docs/registry.pdf" },
-      { t: "Genesis 200 Sale", s: "Node sale progress", f: "/investors/docs/genesis.pdf" },
+      { t: "Pipeline Summary", s: "In-discussion partners (stage-honest)", f: "/api/investors/doc/pipeline" },
+      { t: "Registry Onboarding", s: "Puro.earth, Isometric status", f: "/api/investors/doc/registry" },
+      { t: "Genesis 200 Sale", s: "Node sale progress", f: "/api/investors/doc/genesis" },
     ],
   },
 ];

@@ -90,9 +90,9 @@ export default function AccessPage() {
           <h2>Pitch & Financials</h2>
         </div>
         <div className="docs">
-          <DocCard title="Pitch Deck" sub="The full Series Seed narrative" href="/investors/docs/pitch.pdf" cta="Open deck" />
-          <DocCard title="One-Pager" sub="Executive summary, single page" href="/investors/docs/one-pager.pdf" cta="Open PDF" />
-          <DocCard title="Interactive Financials" sub="Scenario model, live charts" href="/investors/financials" cta="Explore" featured />
+          <DocCard title="Pitch Deck" sub="The full Series Seed narrative" href={`/api/investors/doc/pitch?token=${token}`} cta="Open deck" />
+          <DocCard title="One-Pager" sub="Executive summary, single page" href={`/api/investors/doc/one-pager?token=${token}`} cta="Open PDF" />
+          <DocCard title="Investor Financials" sub="Scenario model, charts" href={`/api/investors/doc/financials?token=${token}`} cta="Open PDF" featured />
         </div>
       </section>
 
@@ -105,9 +105,9 @@ export default function AccessPage() {
 
         {state.canTier2 ? (
           <div className="docs">
-            <DocCard title="Financial Model" sub="12-tab workbook, all assumptions" href="/investors/docs/model.xlsx" cta="Download xlsx" />
-            <DocCard title="Data Room" sub="Cap table, legal, contracts, technical" href="/investors/room" cta="Enter room" featured />
-            <DocCard title="Pro Forma" sub="Detailed P&L and projections" href="/investors/docs/pro-forma.xlsx" cta="Download" />
+            <DocCard title="Financial Model" sub="12-tab workbook, all assumptions" href={`/api/investors/doc/model?token=${token}`} cta="Download xlsx" />
+            <DocCard title="Data Room" sub="Cap table, legal, contracts, technical" href={`/investors/room?token=${token}`} cta="Enter room" featured />
+            <DocCard title="Pro Forma" sub="Detailed P&L and projections" href={`/api/investors/doc/pro-forma?token=${token}`} cta="Download" />
           </div>
         ) : (
           <div className="ndabox">

@@ -1,21 +1,19 @@
 // app/api/investors/doc/[slug]/route.ts
-// Serves gated documents. Every file request re-checks the token and tier.
-// Tier-2 docs require an NDA-accepted token. Files live outside /public so they
-// can ONLY be reached through this checked route, never by direct URL.
-//
-// Store the actual files in a private location (e.g. a private Vercel Blob store,
-// S3 with signed URLs, or /protected-docs not served statically). This route maps
-// a slug -> file and a required tier, verifies, then redirects to a short-lived
-// signed URL or streams the bytes.
+// Serves gated documents from private Vercel Blob storage.
+// Every request re-checks token + tier before streaming the file.
+// Files live in PRIVATE blob, reachable ONLY through this checked route.
+// Tier-2 docs require an accepted NDA.
 
 import { NextRequest, NextResponse } from "next/server";
 import { getInvestor, canAccess, recordAccess, type Tier } from "@/lib/investors";
+import { list } from "@vercel/blob";
 
-// slug -> { tier, storageKey }. Tier gates which docs need an NDA.
+// slug -> { tier, storageKey, filename }
 const DOCS: Record<string, { tier: Tier; storageKey: string; filename: string }> = {
   // Tier 1 (open to any valid token)
   "pitch":        { tier: "tier1", storageKey: "pitch.pdf",        filename: "Malama-Pitch-Deck.pdf" },
   "one-pager":    { tier: "tier1", storageKey: "one-pager.pdf",    filename: "Malama-One-Pager.pdf" },
+  "financials":   { tier: "tier1", storageKey: "financials.pdf",   filename: "Malama-Investor-Financials.pdf" },
   // Tier 2 (NDA required)
   "model":        { tier: "tier2", storageKey: "model.xlsx",       filename: "Malama-Financial-Model.xlsx" },
   "pro-forma":    { tier: "tier2", storageKey: "pro-forma.xlsx",   filename: "Malama-Pro-Forma.xlsx" },
@@ -34,12 +32,13 @@ const DOCS: Record<string, { tier: Tier; storageKey: string; filename: string }>
   "comps":        { tier: "tier2", storageKey: "comps.pdf",        filename: "Malama-DePIN-Comps.pdf" },
 };
 
+const PREFIX = "investor-docs/";
+
 export async function GET(
   req: NextRequest,
   { params }: { params: { slug: string } }
 ) {
-  const slug = params.slug;
-  const doc = DOCS[slug];
+  const doc = DOCS[params.slug];
   if (!doc) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const token = req.nextUrl.searchParams.get("token") || "";
@@ -53,34 +52,24 @@ export async function GET(
     );
   }
 
-  // Log the document access for the audit trail
+  // Audit-log the document access
   recordAccess(token).catch(() => {});
 
-  // OPTION A (recommended): redirect to a short-lived signed URL from your
-  // private blob store. Pseudocode — wire to your store:
-  //
-  //   const signed = await blob.getSignedUrl(doc.storageKey, { expiresIn: 120 });
-  //   return NextResponse.redirect(signed);
-  //
-  // OPTION B: stream bytes from a private path (not under /public):
-  //   const bytes = await readPrivateFile(doc.storageKey);
-  //   return new NextResponse(bytes, { headers: {
-  //     "Content-Type": "application/pdf",
-  //     "Content-Disposition": `inline; filename="${doc.filename}"`,
-  //     "Cache-Control": "private, no-store",
-  //   }});
+  // Find the file in private blob by its prefixed path.
+  try {
+    const { blobs } = await list({ prefix: PREFIX + doc.storageKey });
+    const match = blobs.find((b) => b.pathname === PREFIX + doc.storageKey);
 
-  const signedUrlBase = process.env.PRIVATE_DOC_BASE_URL; // e.g. signed blob endpoint
-  if (signedUrlBase) {
-    const url = `${signedUrlBase}/${doc.storageKey}`;
-    return NextResponse.redirect(url);
+    if (!match) {
+      return NextResponse.json(
+        { error: "This document is being prepared and will be available shortly." },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.redirect(match.url);
+  } catch (e) {
+    console.error("doc serve error", e);
+    return NextResponse.json({ error: "Could not load document." }, { status: 500 });
   }
-
-  // Dev fallback: explain wiring
-  return NextResponse.json({
-    ok: true,
-    note: "Wire PRIVATE_DOC_BASE_URL or implement Option A/B to serve files.",
-    doc: doc.filename,
-    tier: doc.tier,
-  });
 }
