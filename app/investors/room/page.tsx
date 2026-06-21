@@ -10,38 +10,36 @@ interface VerifyResp { valid: boolean; canTier2?: boolean; firm?: string; name?:
 
 const SECTIONS = [
   {
-    cat: "Financials",
+    cat: "Core Documents",
     items: [
-      { t: "Financial Model (12 tabs)", s: "Full workbook: assumptions, scenarios, P&L, valuation", f: "/api/investors/doc/model" },
-      { t: "Pro Forma v1.2", s: "Detailed five-year projections", f: "/api/investors/doc/pro-forma" },
-      { t: "Use of Funds", s: "Seed allocation and deployment bridge", f: "/api/investors/doc/use-of-funds" },
-      { t: "DePIN Comps", s: "Comparable network analysis", f: "/api/investors/doc/comps" },
+      { t: "Whitepaper v1.0", s: "31-page institutional doc: six-layer DePIN, nine verticals, tokenomics", f: "/api/investors/doc/whitepaper" },
+      { t: "Pro Forma v2.0", s: "Five-year model, aligned to published V1 economics", f: "/api/investors/doc/pro-forma" },
+      { t: "Tokenomics v1", s: "500M cap, 60M emission taper, revenue split, burn floor", f: "/api/investors/doc/tokenomics" },
+      { t: "Validator Fees v0.1", s: "USDC protocol revenue mechanics, the operator economics engine", f: "/api/investors/doc/validator-fees" },
+    ],
+  },
+  {
+    cat: "Economics & Pricing",
+    items: [
+      { t: "Genesis Pricing v1.0", s: "Reserve price, reward calculation, cohort normalization", f: "/api/investors/doc/genesis" },
+      { t: "Data Demand Score v1.0", s: "Five-component scoring framework driving deal attribution", f: "/api/investors/doc/data-demand" },
+      { t: "Financial Model", s: "Scenario workbook: bear / base / bull", f: "/api/investors/doc/model" },
     ],
   },
   {
     cat: "Corporate & Legal",
     items: [
-      { t: "Cap Table", s: "Current ownership and option pool", f: "/api/investors/doc/cap-table" },
-      { t: "Certificate of Incorporation", s: "Delaware C-Corp", f: "/api/investors/doc/coi" },
-      { t: "SAFE Template", s: "Round instrument", f: "/api/investors/doc/safe" },
-      { t: "Board Consents", s: "Material resolutions", f: "/api/investors/doc/board" },
-    ],
-  },
-  {
-    cat: "Product & Technical",
-    items: [
-      { t: "Whitepaper v1", s: "Architecture and tokenomics", f: "/api/investors/doc/whitepaper" },
-      { t: "Markets Deep-Dive", s: "Nine-vertical TAM analysis", f: "/api/investors/doc/markets" },
-      { t: "Pilot Data", s: "Texas Node #1, on-chain record", f: "/api/investors/doc/pilot" },
-      { t: "Hardware Spec", s: "Genesis 200 node, ATECC608B", f: "/api/investors/doc/hardware" },
+      { t: "Cap Table", s: "Current ownership and option pool", f: "/api/investors/doc/cap-table", soon: true },
+      { t: "Certificate of Incorporation", s: "Delaware C-Corp", f: "/api/investors/doc/coi", soon: true },
+      { t: "SAFE Template", s: "Round instrument", f: "/api/investors/doc/safe", soon: true },
+      { t: "Board Consents", s: "Material resolutions", f: "/api/investors/doc/board", soon: true },
     ],
   },
   {
     cat: "Traction & Pipeline",
     items: [
-      { t: "Pipeline Summary", s: "In-discussion partners (stage-honest)", f: "/api/investors/doc/pipeline" },
-      { t: "Registry Onboarding", s: "Puro.earth, Isometric status", f: "/api/investors/doc/registry" },
-      { t: "Genesis 200 Sale", s: "Node sale progress", f: "/api/investors/doc/genesis" },
+      { t: "Pilot Data", s: "Texas Node #1, on-chain record", f: "/api/investors/doc/pilot", soon: true },
+      { t: "Pipeline Summary", s: "In-discussion partners (stage-honest)", f: "/api/investors/doc/pipeline", soon: true },
     ],
   },
 ];
@@ -97,12 +95,20 @@ export default function DataRoom() {
         <section key={sec.cat} className="rsec">
           <div className="rcat">{sec.cat}</div>
           <div className="ritems">
-            {sec.items.map((it) => (
-              <a key={it.t} className="ritem" href={`${it.f}?token=${token}`} target="_blank" rel="noreferrer">
-                <div className="rit">{it.t}</div>
-                <div className="ris">{it.s}</div>
-                <div className="ria mono">Open →</div>
-              </a>
+            {sec.items.map((it: any) => (
+              it.soon ? (
+                <div key={it.t} className="ritem soon">
+                  <div className="rit">{it.t}</div>
+                  <div className="ris">{it.s}</div>
+                  <div className="ria mono">Coming soon</div>
+                </div>
+              ) : (
+                <a key={it.t} className="ritem" href={`${it.f}?token=${token}`} target="_blank" rel="noreferrer">
+                  <div className="rit">{it.t}</div>
+                  <div className="ris">{it.s}</div>
+                  <div className="ria mono">Open →</div>
+                </a>
+              )
             ))}
           </div>
         </section>
@@ -146,6 +152,9 @@ const CSS = `
 .ritem{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:18px 20px;
   text-decoration:none;transition:border-color .2s,transform .2s;}
 .ritem:hover{border-color:var(--lime);transform:translateY(-2px);}
+.ritem.soon{opacity:0.5;cursor:default;}
+.ritem.soon:hover{border-color:var(--line);transform:none;}
+.ritem.soon .ria{color:var(--ink-faint);}
 .rit{font-family:'Newsreader',serif;font-size:1.1rem;color:var(--ink);margin-bottom:4px;}
 .ris{font-size:.82rem;color:var(--inkDim);margin-bottom:14px;line-height:1.4;}
 .ria{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--lime);}
