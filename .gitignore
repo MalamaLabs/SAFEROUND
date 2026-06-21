@@ -10,3 +10,6 @@ next-env.d.ts
 .DS_Store
 /protected-docs
 docs-to-upload/
+Malama_*.pdf
+Malama_*.xlsx
+*-handoff.zip
