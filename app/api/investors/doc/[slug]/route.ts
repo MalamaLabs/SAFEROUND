@@ -4,11 +4,11 @@ import { list } from "@vercel/blob";
 
 const DOCS: Record<string, { tier: Tier; storageKey: string; filename: string }> = {
   // Tier 1 (open to any valid token)
-  "one-pager":      { tier: "tier1", storageKey: "one-pager.pdf",      filename: "Malama-One-Pager.pdf" },
-  "financials":     { tier: "tier1", storageKey: "financials.pdf",     filename: "Malama-Investor-Financials.pdf" },
+  "one-pager":      { tier: "tier1", storageKey: "one-pager.pdf",      filename: "Malama-One-Pager-v2.pdf" },
+  "financials":     { tier: "tier1", storageKey: "financials.pdf",     filename: "Malama-Investor-Financials-v2.pdf" },
   "pitch":          { tier: "tier1", storageKey: "pitch.pdf",          filename: "Malama-Pitch-Deck.pdf" },
   // Tier 2 (NDA required) — published V1 docs
-  "whitepaper":     { tier: "tier2", storageKey: "whitepaper.pdf",     filename: "Malama-Whitepaper-v1.pdf" },
+  "whitepaper":     { tier: "tier2", storageKey: "whitepaper.pdf",     filename: "Malama-Whitepaper-v1.0.pdf" },
   "tokenomics":     { tier: "tier2", storageKey: "tokenomics.pdf",     filename: "Malama-Tokenomics-v1.pdf" },
   "validator-fees": { tier: "tier2", storageKey: "validator-fees.pdf", filename: "Malama-Validator-Fees-v1.pdf" },
   "data-demand":    { tier: "tier2", storageKey: "data-demand.pdf",    filename: "Malama-Data-Demand-Score-v1.pdf" },
@@ -55,7 +55,20 @@ export async function GET(
         { status: 404 }
       );
     }
-    return NextResponse.redirect(match.url);
+    // Stream the blob through the gate (keeps the raw blob URL private) and set a
+    // proper download name from doc.filename. no-store: never cache a gated doc.
+    const upstream = await fetch(match.url);
+    if (!upstream.ok || !upstream.body) {
+      return NextResponse.json({ error: "Document temporarily unavailable." }, { status: 502 });
+    }
+    return new NextResponse(upstream.body, {
+      status: 200,
+      headers: {
+        "Content-Type": upstream.headers.get("content-type") || "application/octet-stream",
+        "Content-Disposition": `inline; filename="${doc.filename}"`,
+        "Cache-Control": "private, no-store",
+      },
+    });
   } catch (e) {
     return NextResponse.json(
       { error: "This document is in review and will be available shortly." },
