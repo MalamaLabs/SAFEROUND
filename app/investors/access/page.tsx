@@ -18,9 +18,16 @@ interface VerifyResp {
   canTier2?: boolean;
 }
 
+interface MaterialInfo {
+  version: string;
+  name: string;
+  fallback: boolean;
+}
+
 export default function AccessPage() {
   const [token, setToken] = useState("");
   const [state, setState] = useState<VerifyResp | null>(null);
+  const [materials, setMaterials] = useState<Record<string, MaterialInfo | null> | null>(null);
   const [loading, setLoading] = useState(true);
   const [showNDA, setShowNDA] = useState(false);
   const [agreed, setAgreed] = useState(false);
@@ -33,7 +40,15 @@ export default function AccessPage() {
     if (!t) { setLoading(false); return; }
     fetch(`/api/investors/verify?token=${t}`)
       .then((r) => r.json())
-      .then((d) => setState(d))
+      .then((d) => {
+        setState(d);
+        if (d?.valid) {
+          fetch(`/api/investors/materials?token=${t}`)
+            .then((r) => (r.ok ? r.json() : null))
+            .then((m) => setMaterials(m))
+            .catch(() => {});
+        }
+      })
       .catch(() => setState({ valid: false }))
       .finally(() => setLoading(false));
   }, []);
@@ -90,9 +105,9 @@ export default function AccessPage() {
           <h2>Pitch & Financials</h2>
         </div>
         <div className="docs">
-          <DocCard title="Pitch Deck" sub="The full Series Seed narrative" href={`/api/investors/doc/pitch?token=${token}`} cta="Open deck" />
-          <DocCard title="One-Pager" sub="Executive summary, single page" href={`/api/investors/doc/one-pager?token=${token}`} cta="Open PDF" />
-          <DocCard title="Investor Financials" sub="Scenario model, charts" href={`/api/investors/doc/financials?token=${token}`} cta="Open PDF" featured />
+          <DocCard title="Pitch Deck" sub="The full Series Seed narrative" href={`/files/deck.pdf?token=${token}`} cta="Open deck" version={materials?.deck?.version} />
+          <DocCard title="One-Pager" sub="Executive summary, single page" href={`/files/one-pager.pdf?token=${token}`} cta="Open PDF" version={materials?.onePager?.version} />
+          <DocCard title="Investor Financials" sub="Scenario model, charts" href={`/files/financials.pdf?token=${token}`} cta="Open PDF" featured version={materials?.financials?.version} />
         </div>
       </section>
 
@@ -160,11 +175,14 @@ export default function AccessPage() {
   );
 }
 
-function DocCard({ title, sub, href, cta, featured }:
-  { title: string; sub: string; href: string; cta: string; featured?: boolean }) {
+function DocCard({ title, sub, href, cta, featured, version }:
+  { title: string; sub: string; href: string; cta: string; featured?: boolean; version?: string }) {
   return (
     <a className={`doc ${featured ? "feat" : ""}`} href={href} target="_blank" rel="noreferrer">
-      <div className="dt">{title}</div>
+      <div className="dt">
+        {title}
+        {version ? <span className="ver">{version}</span> : null}
+      </div>
       <div className="ds">{sub}</div>
       <div className="dc">{cta} →</div>
     </a>
@@ -206,6 +224,8 @@ const CSS = `
 .doc:hover{border-color:var(--lime);transform:translateY(-2px);}
 .doc.feat{border-color:var(--limeDim);}
 .dt{font-family:'Newsreader',serif;font-size:1.2rem;color:var(--ink);margin-bottom:5px;}
+.ver{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--limeDim);background:rgba(196,240,97,.1);border-radius:3px;padding:2px 6px;margin-left:8px;vertical-align:middle;}
 .ds{font-size:.85rem;color:var(--inkDim);margin-bottom:18px;line-height:1.4;}
 .dc{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--lime);text-transform:uppercase;}
 .ndabox{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:28px;}
