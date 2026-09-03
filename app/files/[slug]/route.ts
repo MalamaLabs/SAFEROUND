@@ -25,8 +25,9 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
   const family = SLUG_TO_FAMILY[params.slug];
   if (!family) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  // Tier 1 gate: any valid access token may view these materials.
-  const token = req.nextUrl.searchParams.get("token") || "";
+  // Tier 1 gate: read the HTTP-only session cookie set by the access page's
+  // verify call. No token in the URL.
+  const token = req.cookies.get("inv_session")?.value || "";
   const rec = await getInvestor(token);
   if (!rec) return NextResponse.json({ error: "Access denied" }, { status: 403 });
   if (!canAccess(rec, "tier1")) {

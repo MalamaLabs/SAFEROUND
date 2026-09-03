@@ -105,9 +105,9 @@ export default function AccessPage() {
           <h2>Pitch & Financials</h2>
         </div>
         <div className="docs">
-          <DocCard title="Pitch Deck" sub="The full Series Seed narrative" href={`/files/deck.pdf?token=${token}`} cta="Open deck" version={materials?.deck?.version} />
-          <DocCard title="One-Pager" sub="Executive summary, single page" href={`/files/one-pager.pdf?token=${token}`} cta="Open PDF" version={materials?.onePager?.version} />
-          <DocCard title="Investor Financials" sub="Scenario model, charts" href={`/files/financials.pdf?token=${token}`} cta="Open PDF" featured version={materials?.financials?.version} />
+          <DocCard title="Pitch Deck" sub="The full Series Seed narrative" href={`/files/deck.pdf`} cta="Open deck" version={materials?.deck?.version} />
+          <DocCard title="One-Pager" sub="Executive summary, single page" href={`/files/one-pager.pdf`} cta="Open PDF" version={materials?.onePager?.version} />
+          <DocCard title="Investor Financials" sub="Scenario model, charts" href={`/files/financials.pdf`} cta="Open PDF" featured version={materials?.financials?.version} />
         </div>
       </section>
 

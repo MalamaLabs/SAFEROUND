@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
   // Fire-and-forget access logging
   recordAccess(token).catch(() => {});
 
-  return NextResponse.json({
+  const res = NextResponse.json({
     valid: true,
     name: rec.name,
     firm: rec.firm,
@@ -25,4 +25,15 @@ export async function GET(req: NextRequest) {
     canTier1: canAccess(rec, "tier1"),
     canTier2: canAccess(rec, "tier2"),
   });
+
+  // Establish an HTTP-only session so gated file downloads (/files/*) do not
+  // need the token in the URL. Same token, now carried by the browser.
+  res.cookies.set("inv_session", token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 7, // 7 days
+  });
+  return res;
 }
