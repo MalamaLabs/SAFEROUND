@@ -2,11 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { getInvestor, canAccess, recordAccess, type Tier } from "@/lib/investors";
 import { list } from "@vercel/blob";
 
+// The Tier-1 materials (deck, one-pager, financials) now come live from Google
+// Drive via /files/*. Their old Blob-backed slugs return 410 so no stale copy is
+// reachable. Map each retired slug to its /files replacement.
+const GONE: Record<string, string> = {
+  pitch: "deck.pdf",
+  "one-pager": "one-pager.pdf",
+  financials: "financials.pdf",
+};
+
 const DOCS: Record<string, { tier: Tier; storageKey: string; filename: string }> = {
-  // Tier 1 (open to any valid token)
-  "one-pager":      { tier: "tier1", storageKey: "one-pager.pdf",      filename: "Malama-One-Pager-v2.pdf" },
-  "financials":     { tier: "tier1", storageKey: "financials.pdf",     filename: "Malama-Investor-Financials-v2.pdf" },
-  "pitch":          { tier: "tier1", storageKey: "pitch.pdf",          filename: "Malama-Pitch-Deck.pdf" },
   // Tier 2 (NDA required) — published V1 docs
   "whitepaper":     { tier: "tier2", storageKey: "whitepaper.pdf",     filename: "Malama-Whitepaper-v1.0.pdf" },
   "tokenomics":     { tier: "tier2", storageKey: "tokenomics.pdf",     filename: "Malama-Tokenomics-v1.pdf" },
@@ -33,6 +38,14 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { slug: string } }
 ) {
+  const moved = GONE[params.slug];
+  if (moved) {
+    return NextResponse.json(
+      { error: `This document moved. Fetch /files/${moved} from the portal.` },
+      { status: 410 },
+    );
+  }
+
   const doc = DOCS[params.slug];
   if (!doc) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
