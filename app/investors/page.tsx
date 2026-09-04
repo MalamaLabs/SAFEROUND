@@ -13,7 +13,37 @@ export default function InvestorsPage() {
   const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
   const [error, setError] = useState("");
 
+  const [code, setCode] = useState("");
+  const [codeStatus, setCodeStatus] = useState<"idle" | "checking">("idle");
+  const [codeError, setCodeError] = useState("");
+
   const update = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
+
+  async function redeem() {
+    setCodeError("");
+    if (!code.trim()) {
+      setCodeError("Enter your access code.");
+      return;
+    }
+    setCodeStatus("checking");
+    try {
+      const res = await fetch("/api/investors/redeem", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: code.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.token) {
+        setCodeError(data.error || "That code isn't valid.");
+        setCodeStatus("idle");
+        return;
+      }
+      window.location.href = `/investors/access?token=${data.token}`;
+    } catch {
+      setCodeError("Network error. Please try again.");
+      setCodeStatus("idle");
+    }
+  }
 
   async function submit() {
     setError("");
@@ -87,6 +117,30 @@ export default function InvestorsPage() {
           </div>
 
           <div className="right">
+            {status !== "done" && (
+              <div className="codecard">
+                <div className="eyebrow">Have an access code?</div>
+                <p className="codehint">
+                  If a founder sent you a personal access code, enter it to go straight in.
+                </p>
+                <div className="coderow">
+                  <input
+                    value={code}
+                    placeholder="cedar-basin-42"
+                    onChange={(e) => setCode(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") redeem();
+                    }}
+                    aria-label="Access code"
+                  />
+                  <button className="codebtn" onClick={redeem} disabled={codeStatus === "checking"}>
+                    {codeStatus === "checking" ? "…" : "Enter"}
+                  </button>
+                </div>
+                {codeError && <div className="err">{codeError}</div>}
+                <div className="or"><span>or request access below</span></div>
+              </div>
+            )}
             {status === "done" ? (
               <div className="success">
                 <div className="check">✓</div>
@@ -199,5 +253,15 @@ button:disabled{opacity:.5;cursor:default;}
 .success p{color:var(--inkDim);font-size:.95rem;line-height:1.55;margin-bottom:10px;}
 .success p strong{color:var(--ink);}
 .success .small{font-size:.82rem;color:var(--faint);}
+.codecard{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:22px 24px;margin-bottom:18px;}
+.codehint{font-size:.82rem;color:var(--inkDim);line-height:1.5;margin:6px 0 14px;}
+.coderow{display:flex;gap:10px;}
+.coderow input{flex:1;background:var(--panel2);border:1px solid var(--line);border-radius:5px;color:var(--ink);
+  font-size:14px;font-family:'JetBrains Mono',monospace;padding:11px 13px;outline:none;transition:border-color .2s;}
+.coderow input:focus{border-color:var(--lime);}
+.codebtn{width:auto;flex-shrink:0;margin-top:0;padding:11px 20px;}
+.or{display:flex;align-items:center;gap:12px;margin-top:16px;color:var(--faint);
+  font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;}
+.or::before,.or::after{content:'';flex:1;height:1px;background:var(--line);}
 @media(max-width:820px){.grid{grid-template-columns:1fr;gap:32px;}.stats{grid-template-columns:1fr;}}
 `;
