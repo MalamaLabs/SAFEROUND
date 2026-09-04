@@ -12,8 +12,8 @@ const SECTIONS = [
   {
     cat: "Core Documents",
     items: [
-      { t: "Whitepaper v1.0", s: "31-page institutional doc: six-layer DePIN, nine verticals, tokenomics", f: "/api/investors/doc/whitepaper" },
-      { t: "Pro Forma v2.0", s: "Five-year model, aligned to published V1 economics", f: "/api/investors/doc/pro-forma" },
+      { t: "Whitepaper v1.0", s: "31-page institutional doc: six-layer DePIN, nine verticals, tokenomics", f: "/api/investors/doc/whitepaper", updating: true },
+      { t: "Pro Forma v2.0", s: "Five-year model, aligned to published V1 economics", f: "/api/investors/doc/pro-forma", updating: true },
       { t: "Tokenomics v1", s: "500M cap, 60M emission taper, revenue split, burn floor", f: "/api/investors/doc/tokenomics" },
       { t: "Validator Fees v0.1", s: "USDC protocol revenue mechanics, the operator economics engine", f: "/api/investors/doc/validator-fees" },
     ],
@@ -23,7 +23,7 @@ const SECTIONS = [
     items: [
       { t: "Genesis Pricing v1.0", s: "Reserve price, reward calculation, cohort normalization", f: "/api/investors/doc/genesis" },
       { t: "Data Demand Score v1.0", s: "Five-component scoring framework driving deal attribution", f: "/api/investors/doc/data-demand" },
-      { t: "Financial Model", s: "Scenario workbook: bear / base / bull", f: "/api/investors/doc/model" },
+      { t: "Financial Model", s: "Scenario workbook: bear / base / bull", f: "/api/investors/doc/model", updating: true },
     ],
   },
   {
@@ -96,7 +96,13 @@ export default function DataRoom() {
           <div className="rcat">{sec.cat}</div>
           <div className="ritems">
             {sec.items.map((it: any) => (
-              it.soon ? (
+              it.updating ? (
+                <div key={it.t} className="ritem soon">
+                  <div className="rit">{it.t}</div>
+                  <div className="ris">Being updated to the September materials.</div>
+                  <div className="ria mono">Updating</div>
+                </div>
+              ) : it.soon ? (
                 <div key={it.t} className="ritem soon">
                   <div className="rit">{it.t}</div>
                   <div className="ris">{it.s}</div>

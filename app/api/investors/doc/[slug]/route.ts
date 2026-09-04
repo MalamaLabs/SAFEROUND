@@ -26,12 +26,22 @@ const DOCS: Record<string, { tier: Tier; storageKey: string; filename: string }>
 
 const PREFIX = "investor-docs/";
 
+// Temporarily hidden while refreshed for the September materials.
+const UPDATING = new Set(["model", "pro-forma", "whitepaper"]);
+
 export async function GET(
   req: NextRequest,
   { params }: { params: { slug: string } }
 ) {
   const doc = DOCS[params.slug];
   if (!doc) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  if (UPDATING.has(params.slug)) {
+    return NextResponse.json(
+      { error: "Being updated to the September materials." },
+      { status: 404 },
+    );
+  }
 
   const token = req.nextUrl.searchParams.get("token") || "";
   const rec = await getInvestor(token);
