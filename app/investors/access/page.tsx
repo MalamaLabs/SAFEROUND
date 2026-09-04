@@ -105,9 +105,9 @@ export default function AccessPage() {
 
         {state.canTier2 ? (
           <div className="docs">
-            <DocCard title="Financial Model" sub="12-tab workbook, all assumptions" href={`/api/investors/doc/model?token=${token}`} cta="Download xlsx" />
+            <DocCard title="Financial Model" sub="12-tab workbook, all assumptions" href={`/api/investors/doc/model?token=${token}`} cta="Download xlsx" updating />
             <DocCard title="Data Room" sub="Cap table, legal, contracts, technical" href={`/investors/room?token=${token}`} cta="Enter room" featured />
-            <DocCard title="Pro Forma" sub="Detailed P&L and projections" href={`/api/investors/doc/pro-forma?token=${token}`} cta="Download" />
+            <DocCard title="Pro Forma" sub="Detailed P&L and projections" href={`/api/investors/doc/pro-forma?token=${token}`} cta="Download" updating />
           </div>
         ) : (
           <div className="ndabox">
@@ -160,8 +160,17 @@ export default function AccessPage() {
   );
 }
 
-function DocCard({ title, sub, href, cta, featured }:
-  { title: string; sub: string; href: string; cta: string; featured?: boolean }) {
+function DocCard({ title, sub, href, cta, featured, updating }:
+  { title: string; sub: string; href: string; cta: string; featured?: boolean; updating?: boolean }) {
+  if (updating) {
+    return (
+      <div className="doc updating">
+        <div className="dt">{title}</div>
+        <div className="ds">Being updated to the September materials.</div>
+        <div className="dc">Updating</div>
+      </div>
+    );
+  }
   return (
     <a className={`doc ${featured ? "feat" : ""}`} href={href} target="_blank" rel="noreferrer">
       <div className="dt">{title}</div>
@@ -205,6 +214,8 @@ const CSS = `
   text-decoration:none;transition:border-color .2s,transform .2s;display:block;}
 .doc:hover{border-color:var(--lime);transform:translateY(-2px);}
 .doc.feat{border-color:var(--limeDim);}
+.doc.updating{opacity:.5;cursor:default;display:block;}
+.doc.updating .dc{color:var(--faint);}
 .dt{font-family:'Newsreader',serif;font-size:1.2rem;color:var(--ink);margin-bottom:5px;}
 .ds{font-size:.85rem;color:var(--inkDim);margin-bottom:18px;line-height:1.4;}
 .dc{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--lime);text-transform:uppercase;}
